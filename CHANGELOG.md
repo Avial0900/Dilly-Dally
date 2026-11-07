@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.14.3 — 2026-11-06
+- **Places stay useful while Overpass is down:** Photon tag batches now also ask for Overpass-heavy vibe types Photon can filter — adventure/high-ropes parks, dance studios, climbing/karting/axe throwing, zip lines, pastry/confectionery/chocolate shops, pottery, wineries and cider — so cozy/adventurous/nerdy place vibes still fill from Photon when the Overpass mirrors time out.
+- **Honest Places status:** when Overpass fails or is skipped after repeated failures, and places still loaded, the status says Overpass is unavailable and that Photon, Wikipedia and Nominatim are filling in (instead of looking like a total failure or staying silent).
+- **`dd_ov_fail` resets on success:** a successful Overpass response (places or farmers markets) clears `sessionStorage dd_ov_fail` so a prior outage does not keep skipping Overpass for the rest of the session once mirrors recover.
+- **Worker Overpass hardening:** empty or missing `elements` from a mirror is a soft failure (try the next mirror; do not cache the empty body), so a bogus 200-empty mirror cannot poison the 1 h edge cache. Added `overpass.private.coffee` as a third mirror and raised the per-mirror abort from 12 s to 18 s. `overpass.osm.ch` is not used (returns empty with a bogus timestamp). v1.14.1 client behavior kept: no direct-browser retry after a Worker 502/429.
+
 ## v1.14.2 — 2026-10-30
 - Added Impact site-verification meta tag in <head> (Fever affiliate program). Meta tag only, no script.
 
