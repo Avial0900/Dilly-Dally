@@ -566,7 +566,7 @@ function ohClosed(oh,dow){if(!oh)return null;try{oh=oh.trim();if(/^24\/7$/.test(
 
 async function loadPlaces(){if(!state.loc)return;const gen=++placeGen;const {lat,lon}=state.loc;const mi=+fv("radius");const r=Math.round(mi*1609.34);const key=`${lat},${lon},${r}`;state.placesFor=key;
  const cached=LS("dd_pl_"+key);if(cached&&cached.p&&cached.p.length&&Date.now()-cached.t<36e5){state.places=cached.p;state.src=cached.s;$("plStatus").textContent=`${state.places.length} places within ${mi} mi (${cached.s}, cached).`;updAttrib();render();return}
- state.places=[];state.src="";const seen={},used={},srcErr={},ovErrs=[];let pending=3,stopped=false;const pend={Photon:1,Wikipedia:1,Nominatim:1};const deadline=Date.now()+45000;
+ state.places=[];state.src="";const seen={},used={},srcErr={},ovErrs=[];let pending=3,stopped=false,ovSkip=false,ovDown=false;const pend={Photon:1,Wikipedia:1,Nominatim:1};const deadline=Date.now()+45000;
  setTimeout(function(){if(gen!==placeGen||state.placesFor!==key||!(pending>0))return;stopped=true;pending=0;status()},45500);
  $("plStatus").textContent="Finding places nearby…";render();
  // v1.14 near-duplicate names (e.g. "Urban Kyaks" vs "Urban Kayaks") within ~150 m: keep the record with more tags
@@ -581,10 +581,11 @@ async function loadPlaces(){if(!state.loc)return;const gen=++placeGen;const {lat
   if(n)used[src]=1;state.src=Object.keys(used).join(" + ");updAttrib();render();status()}
  function done(name,err){if(gen!==placeGen||state.placesFor!==key)return;delete pend[name];if(err)srcErr[name]=err;pending=Math.max(0,pending-1);status()}
  function status(){if(gen!==placeGen||state.placesFor!==key)return;const busy=pending>0;const el=Object.keys(srcErr).map(k=>k+": "+srcErr[k]);if(stopped)Object.keys(pend).forEach(k=>el.push(k+": no response after 45s"));
+  const ovNote=(!used.Overpass&&(ovDown||ovSkip))?" Overpass is unavailable right now; Photon, Wikipedia and Nominatim are filling in.":"";
   if(!state.places.length&&!busy){$("plStatus").innerHTML=retryHtml(el.length?"No places loaded — every source failed: "+el.concat(ovErrs).join("; ")+". Try again in a minute, or a larger radius.":"No places found within "+mi+" mi. Try a larger radius.","loadPlaces()")+" <small>Showing anywhere-ideas meanwhile.</small>";return}
   if(!state.places.length){$("plStatus").textContent="Finding places nearby…";return}
-  if(!busy&&el.length){$("plStatus").innerHTML=esc(`${state.places.length} places found within ${mi} mi (${state.src}). Some sources failed — ${el.join("; ")}.`)+' <button onclick="loadPlaces()">Retry</button>';return}
-  $("plStatus").textContent=`${state.places.length} places ${busy?"so far":"found"} within ${mi} mi (${state.src})${busy?" — still loading…":"."}`;
+  if(!busy&&el.length){$("plStatus").innerHTML=esc(`${state.places.length} places found within ${mi} mi (${state.src}). Some sources failed — ${el.join("; ")}.${ovNote}`)+' <button onclick="loadPlaces()">Retry</button>';return}
+  $("plStatus").textContent=`${state.places.length} places ${busy?"so far":"found"} within ${mi} mi (${state.src})${busy?" — still loading…":"."}${busy?"":ovNote}`;
   if(!busy&&!el.length)save("dd_pl_"+key,{t:Date.now(),p:state.places,s:state.src})}
  const live=()=>gen===placeGen&&state.placesFor===key;
  // 1) Photon (OSM, tag-filtered reverse lookups)
@@ -593,12 +594,12 @@ async function loadPlaces(){if(!state.loc)return;const gen=++placeGen;const {lat
  wikiSource(lat,lon,r,key,els=>{if(live())ingest(els,"Wikipedia",false)}).then(e=>done("Wikipedia",e),e=>done("Wikipedia",e.message));
  // 3) Nominatim bounded category search (1 req/s)
  nomSource(lat,lon,mi,key,els=>{if(live())ingest(els,"Nominatim/OSM",false)},deadline).then(e=>done("Nominatim",e),e=>done("Nominatim",e.message));
- // 4) Overpass: opportunistic, never blocks
+ // 4) Overpass: opportunistic, never blocks (v1.14.3: reset ov_fail on success; honest status when down)
  let ovFails=0;try{ovFails=+sessionStorage.getItem("dd_ov_fail")||0}catch(e){}
- if(ovFails<2){const mir=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"][(ovFails+Math.floor(Date.now()/1000))%2];
+ if(ovFails>=2){ovSkip=true}else{const mir=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter"][(ovFails+Math.floor(Date.now()/1000))%2];
   const A=`(around:${r},${lat},${lon})`;
   const q=`[out:json][timeout:8];(nwr${A}[leisure~"^(park|nature_reserve|bowling_alley|escape_game|amusement_arcade|water_park|ice_rink|swimming_pool|miniature_golf|golf_course|sports_centre|dog_park|garden|trampoline_park|adventure_park|high_ropes_course|hackerspace|dance)$"][name];nwr${A}[tourism~"^(museum|gallery|zoo|aquarium|theme_park|viewpoint|attraction)$"][name];nwr${A}[amenity~"^(cinema|planetarium|theatre|library|arts_centre|marketplace|pub|bar|cafe|restaurant|boat_rental|food_court|ice_cream|dancing_school)$"][name];nwr${A}[craft~"^(brewery|winery|cider|pottery)$"];nwr${A}[shop~"^(farm|books|tea|games|bakery|pastry|confectionery|chocolate)$"][name];nwr${A}[sport~"^(climbing|karting|axe_throwing)$"][name];nwr${A}[man_made=observatory][name];nwr${A}[aerialway=zip_line];nwr${A}[natural=beach][name];);out center tags 900;`;
-  fetchJ(mir+"?data="+encodeURIComponent(q),{},8000).then(j=>{if(live())ingest(j.elements||[],"Overpass",true)},e=>{ovErrs.push("Overpass: "+e.message);try{sessionStorage.setItem("dd_ov_fail",ovFails+1)}catch(x){}})}}
+  fetchJ(mir+"?data="+encodeURIComponent(q),{},8000).then(j=>{try{sessionStorage.setItem("dd_ov_fail","0")}catch(x){}if(live())ingest(j.elements||[],"Overpass",true)},e=>{ovDown=true;ovErrs.push("Overpass: "+e.message);try{sessionStorage.setItem("dd_ov_fail",String(ovFails+1))}catch(x){}})}}
 const CC_LANG={JP:"ja",FR:"fr",DE:"de",ES:"es",MX:"es",AR:"es",CO:"es",CL:"es",PE:"es",IT:"it",PT:"pt",BR:"pt",NL:"nl",BE:"fr",SE:"sv",NO:"no",DK:"da",FI:"fi",IS:"is",PL:"pl",CZ:"cs",RU:"ru",UA:"uk",CN:"zh",TW:"zh",KR:"ko",TR:"tr",GR:"el",IL:"he",AT:"de",CH:"de",HU:"hu",RO:"ro",TH:"th",VN:"vi",ID:"id",ZA:"af"};
 const WIKI_RULES=[[/\b(school|university|college|hospital|district|station|county|township|village|neighbou?rhood|suburb|company|plant|factory|radio|television|congressional|cemetery|highway|road|street|airport|railway|church|parish|ward|municipality|prefecture|census|electoral|constituency|corporation|headquarters|office|apartment|hotel|bank|pub|tavern|laboratory|laboratories|(city|town|suburb|area) (in|of))\b/i,null],[/\bstatue\b|sculpture/i,"tourism=attraction"],
 [/planetarium|プラネタリウム/i,"amenity=planetarium"],[/hall of fame|museum|博物館|美術館|musée|museo|museu|safn/i,"tourism=museum"],[/art gallery|galerie|galería|gallery/i,"tourism=gallery"],[/\bzoo\b|動物園|zoológico/i,"tourism=zoo"],[/aquarium|水族館|acuario/i,"tourism=aquarium"],
@@ -622,9 +623,9 @@ async function nomSource(lat,lon,mi,key,onBatch,deadline){const dl=mi/69,dn=mi/(
   catch(e){last=e.message;if(/HTTP 429|HTTP 403/.test(last))break}}
  return ok?"":(last||"failed")}
 // Photon reverse lookups: location-agnostic (no keywords), nearest-first, filtered by OSM tags
-const PH=[["fun",["tourism:museum","tourism:gallery","amenity:cinema","amenity:planetarium","amenity:theatre","leisure:bowling_alley","leisure:amusement_arcade","leisure:escape_game","leisure:miniature_golf","tourism:zoo","tourism:aquarium","tourism:theme_park","leisure:water_park","amenity:arts_centre","leisure:trampoline_park","amenity:boat_rental","leisure:hackerspace","man_made:observatory"]],
-["parks",["leisure:park","leisure:garden","leisure:nature_reserve","natural:beach","tourism:viewpoint","leisure:dog_park"]],["food",["amenity:restaurant","amenity:cafe","shop:bakery","amenity:ice_cream","amenity:food_court"]],
-["drinks",["craft:brewery","amenity:pub","amenity:bar","amenity:marketplace","shop:farm"]],["more",["tourism:attraction","amenity:library","leisure:sports_centre","leisure:ice_rink","leisure:swimming_pool","leisure:golf_course","leisure:playground","shop:books","shop:games","shop:tea"]]];
+const PH=[["fun",["tourism:museum","tourism:gallery","amenity:cinema","amenity:planetarium","amenity:theatre","leisure:bowling_alley","leisure:amusement_arcade","leisure:escape_game","leisure:miniature_golf","tourism:zoo","tourism:aquarium","tourism:theme_park","leisure:water_park","amenity:arts_centre","leisure:trampoline_park","amenity:boat_rental","leisure:hackerspace","man_made:observatory","leisure:adventure_park","leisure:high_ropes_course","leisure:dance","amenity:dancing_school","sport:climbing","sport:karting","sport:axe_throwing","aerialway:zip_line"]],
+["parks",["leisure:park","leisure:garden","leisure:nature_reserve","natural:beach","tourism:viewpoint","leisure:dog_park"]],["food",["amenity:restaurant","amenity:cafe","shop:bakery","amenity:ice_cream","amenity:food_court","shop:pastry","shop:confectionery","shop:chocolate","craft:pottery"]],
+["drinks",["craft:brewery","amenity:pub","amenity:bar","amenity:marketplace","shop:farm","craft:winery","craft:cider"]],["more",["tourism:attraction","amenity:library","leisure:sports_centre","leisure:ice_rink","leisure:swimming_pool","leisure:golf_course","leisure:playground","shop:books","shop:games","shop:tea"]]];
 
 // v1.8: Nominatim/Overpass go through our caching Worker when it has those routes; direct call if the proxy errors.
 const API_BASE=EVENTS_PROXY_URL?EVENTS_PROXY_URL.replace(/\/events\/?$/,""):"";let osmProxyOff=false;
@@ -826,8 +827,8 @@ async function loadMarkets(){if(!state.loc)return;const key=locKey();if(state.mk
    catch(e){errs.push("Nominatim: "+e.message);if(/HTTP 429|HTTP 403/.test(e.message))return}}})();
  let ovFails=0;try{ovFails=+sessionStorage.getItem("dd_ov_fail")||0}catch(e){}
  const pOv=ovFails>=2?Promise.resolve():(()=>{const r=Math.round(mi*1609),A=`(around:${r},${lat},${lon})`;const q=`[out:json][timeout:8];(nwr${A}[amenity=marketplace][name];nwr${A}[shop=farm][name~"market",i];);out center tags 200;`;
-  return fetchJ("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(q),{},8000).then(j=>{if(!live())return;const els=[];(j.elements||[]).forEach(e=>{const t=e.tags||{};const la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;if(la==null)return;
-   els.push({id:e.type[0].toUpperCase()+e.id,name:t.name,lat:la,lon:lo,oh:t.opening_hours||"",farmers:t.marketplace==="farmers"||t.shop==="farm"||/farmer/i.test(t.produce||""),web:t.website||""})});mkAdd(key,els);rr()},e=>{errs.push("Overpass: "+e.message);try{sessionStorage.setItem("dd_ov_fail",ovFails+1)}catch(x){}})})();
+  return fetchJ("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(q),{},8000).then(j=>{try{sessionStorage.setItem("dd_ov_fail","0")}catch(x){}if(!live())return;const els=[];(j.elements||[]).forEach(e=>{const t=e.tags||{};const la=e.lat!=null?e.lat:e.center&&e.center.lat,lo=e.lon!=null?e.lon:e.center&&e.center.lon;if(la==null)return;
+   els.push({id:e.type[0].toUpperCase()+e.id,name:t.name,lat:la,lon:lo,oh:t.opening_hours||"",farmers:t.marketplace==="farmers"||t.shop==="farm"||/farmer/i.test(t.produce||""),web:t.website||""})});mkAdd(key,els);rr()},e=>{errs.push("Overpass: "+e.message);try{sessionStorage.setItem("dd_ov_fail",String(ovFails+1))}catch(x){}})})();
  await Promise.all([pPhoton,pNom,pOv].map(p=>p.catch(()=>{})));
  // fill missing hours with one Nominatim lookup (by OSM id)
  if(live()&&Date.now()<deadline-3000){const need=state.mk.list.filter(m=>!m.oh&&/^[NWR]\d+$/.test(m.id)).slice(0,50);
