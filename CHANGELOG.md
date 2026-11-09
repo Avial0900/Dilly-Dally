@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.14.4 — 2026-11-09 (built on live v1.14.3)
+- **Stock exchanges no longer show up as markets:** some OSM and Wikipedia entries for stock and securities exchanges are tagged or described as a "market". Places then showed them as 🧺 markets, and the Events tab listed them under "Markets open that day". Examples: B3 in São Paulo (Wikipedia: "Brazilian stock exchange and OTC market") and the Nairobi Securities Exchange (OSM `amenity=marketplace`). A shared `NOT_MARKET_RE` filter now covers stock/securities/financial exchanges, bourse/Börse/Borsa/bolsa de valores, 証券/取引所/交易所, supermarkets/hypermarkets and marketing/market research. It is checked in three places: the Wikipedia classifier (such pages are skipped), `classify()` for `amenity=marketplace` (name + description), and `mkAdd()` for the market-hours list (Photon, Nominatim and Overpass). Real markets (Eastern Market, Mercado Municipal, Marché, Markt, 市場) are not affected.
+
 ## v1.14.3 — 2026-11-06
 - **Places stay useful while Overpass is down:** Photon tag batches now also ask for Overpass-heavy vibe types Photon can filter — adventure/high-ropes parks, dance studios, climbing/karting/axe throwing, zip lines, pastry/confectionery/chocolate shops, pottery, wineries and cider — so cozy/adventurous/nerdy place vibes still fill from Photon when the Overpass mirrors time out.
 - **Honest Places status:** when Overpass fails or is skipped after repeated failures, and places still loaded, the status says Overpass is unavailable and that Photon, Wikipedia and Nominatim are filling in (instead of looking like a total failure or staying silent).
