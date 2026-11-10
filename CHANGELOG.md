@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.14.7 — 2026-11-10 (built on live v1.14.6)
+- **Date night landing pages:** new `/ann-arbor-date-night`, and `/detroit-date-night` and `/royal-oak-date-night` rewritten from a short blurb into real guides (12–14 verified local date ideas each, grouped by winter/holiday, shows, free/outdoors and daytime, with a short FAQ and a source link per idea). Every CTA opens the app with the city filled in, the romantic mood and the Date night tab (`./?q=…&lat=…&lon=…&mood=romantic&tab=date&ref=seo-date-<city>`), using the existing v1.11 share-link parser (one auto-run on load, like the other landing links; unknown `ref` is ignored). No scripts on the landing pages and no Viator links.
+- **Footer Explore links:** added "Date night ideas in Ann Arbor" and renamed the Royal Oak link to "Date night ideas in Royal Oak, MI". No other change to index.html.
+- **sitemap.xml:** added `/ann-arbor-date-night`; lastmod 2026-11-10 for `/`, `/detroit-date-night`, `/royal-oak-date-night`, `/ann-arbor-date-night`.
+
 ## v1.14.6 — 2026-11-10 (built on live v1.14.5)
 - **Wider Viator search lines:** on top of the existing name-only links, every searched city now gets a "Tours & experiences in {city}" line near the top of Places, and the Activities/Date night tab gets three search lines (Sunset cruises, Wine tastings, Food tours). Events, free stuff, parks, libraries and restaurants stay link-free. Same affiliate params (pid=P00328934, mcid=42383, medium=link, campaign, rel="sponsored noopener").
 - **WebKit 375px overflow:** the Setting dropdown (“Let the weather decide”) no longer widens the page by ~4px on WebKit at a 375px viewport.
