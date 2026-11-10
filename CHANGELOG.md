@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.14.6 — 2026-11-10 (built on live v1.14.5)
+- **Wider Viator search lines:** on top of the existing name-only links, every searched city now gets a "Tours & experiences in {city}" line near the top of Places, and the Activities/Date night tab gets three search lines (Sunset cruises, Wine tastings, Food tours). Events, free stuff, parks, libraries and restaurants stay link-free. Same affiliate params (pid=P00328934, mcid=42383, medium=link, campaign, rel="sponsored noopener").
+
 ## v1.14.5 — 2026-11-10 (built on live v1.14.4)
 - **Honest "rest of today" weather:** late in the evening at the chosen place (common when you look up a city in another time zone), today's forecast only has a few hours left. The high and low then came from those last hours, so it could read "48° / 48°F" as if that were the whole day. Now, when fewer than 6 forecast hours of the place's day remain (MET Norway), or NWS only has a "Tonight" period left, the weather line says "rest of today" after the temperatures. If the high and low are equal, it shows a single temperature (e.g. "48°F") in the weather line and the date chips. Full days are unchanged.
 

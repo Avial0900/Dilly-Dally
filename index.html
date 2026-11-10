@@ -35,7 +35,7 @@ button.pri{background:var(--acc);color:#fff;font-weight:600}#go.upd{box-shadow:0
 .res{border-top:1px solid var(--bd);padding:10px 0}.res:first-child{border:0}.res h3{margin:0;font-size:1rem}.meta{color:var(--mut);font-size:.82rem}
 .why{font-size:.85rem;margin:4px 0}.deal{font-size:.8rem;background:#fff4d6;color:#6b4e00;border-radius:8px;padding:4px 8px;margin:4px 0}
 @media(prefers-color-scheme:dark){.deal{background:#3a321b;color:#f3d98a}}
-.links a{font-size:.82rem;margin-right:10px;color:var(--acc2)}.links,.meta,.near,.why{overflow-wrap:anywhere}.status{font-size:.85rem;color:var(--mut)}.vlink{color:inherit;text-decoration:underline;text-decoration-color:var(--bd);text-underline-offset:3px}.via{font-size:.68rem;font-weight:400;color:var(--mut);white-space:nowrap}.err{color:#d33}
+.links a{font-size:.82rem;margin-right:10px;color:var(--acc2)}.links,.meta,.near,.why{overflow-wrap:anywhere}.status{font-size:.85rem;color:var(--mut)}.vlink{color:inherit;text-decoration:underline;text-decoration-color:var(--bd);text-underline-offset:3px}.via{font-size:.68rem;font-weight:400;color:var(--mut);white-space:nowrap}.vpromo{margin:0;padding:4px 0;font-size:.9rem;line-height:1.4;overflow-wrap:anywhere}.err{color:#d33}
 .pick{border:2px solid var(--acc)}.cnt{font-size:.8rem;color:var(--mut);font-weight:400}.more{width:100%;margin-top:6px}.badge{display:inline-block;font-size:.72rem;padding:1px 7px;border-radius:9px;background:var(--acc);color:#fff;vertical-align:middle}.badge.free{background:#2e8b57}.subh{font-size:1rem;margin:14px 0 4px}details.unv{margin:6px 0;font-size:.88rem}details.unv summary{cursor:pointer;color:var(--mut)}.unvi{padding:5px 0;border-bottom:1px solid rgba(128,128,128,.2)}details.tmset{margin-top:10px;font-size:.85rem;color:var(--mut)}details.tmset input{width:100%;margin:6px 0;font-size:16px}.holn{font-size:.82rem;color:#7a4b00;background:#fff3d6;border-radius:6px;padding:2px 8px;display:inline-block;margin:3px 0}.hol{background:#efe3ff;color:#4b2a7a;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:.9rem}.evimg{float:right;width:72px;height:72px;object-fit:cover;border-radius:10px;margin-left:8px}.near{font-size:.82rem;margin:3px 0}.linkgrid a{display:inline-block;margin:4px 6px 4px 0;padding:6px 10px;border-radius:999px;background:var(--chip);color:var(--fg);text-decoration:none;font-size:.85rem}@media(prefers-color-scheme:dark){.hol{background:#2f2540;color:#d9c6ff}}.unknown{background:#e4e4e4;color:#444}.wxsum{margin-top:8px;font-size:.9rem}.closed{color:#c0392b;font-size:.82rem}small{color:var(--mut)}
 #resCard{padding-top:0}.tabs{position:sticky;top:0;z-index:5;display:flex;gap:4px;margin:0 -14px 10px;padding:8px 8px 0;background:var(--card);border-bottom:1px solid var(--bd);border-radius:14px 14px 0 0}.tab{flex:1 1 auto;min-width:0;white-space:nowrap;border:0;border-bottom:3px solid transparent;border-radius:10px 10px 0 0;background:transparent;color:var(--mut);font:inherit;font-size:.9rem;font-weight:600;padding:8px 6px;cursor:pointer;position:relative}.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--acc);background:var(--chip)}.tab:focus-visible{outline:2px solid var(--acc2);outline-offset:-2px}.tc{font-weight:400;font-size:.78rem}.ts{display:none}.tdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--acc);margin-left:3px;vertical-align:top}.tdot[hidden]{display:none}.spin{display:inline-block;width:10px;height:10px;border:2px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px}@keyframes sp{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.spin{animation:none}}.tp>h2{font-size:1.05rem}@media(max-width:520px){.tl{display:none}.ts{display:inline}.tab{font-size:.82rem;padding:8px 3px;white-space:normal;line-height:1.2;overflow-wrap:anywhere}.tabs{gap:2px;padding:6px 4px 0}}
 #loc{padding-right:46px}#locClr{position:absolute;right:2px;top:2px;width:42px;height:40px;border:0;background:transparent;color:var(--mut);font-size:1.1rem;line-height:1;padding:0;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center}#locClr[hidden]{display:none}#locClr:hover,#locClr:focus-visible{color:var(--fg);background:var(--chip)}
@@ -144,6 +144,9 @@ function viatorCat(i){if(i.ev||i.event||i.tm||i.freeEv||i.market||i.hol)return n
  return VIATOR.places[c]||null}
 function nameHtml(i){const city=viatorCity(),type=city?viatorCat(i):null,u=type?viatorUrl(type,city):null;if(!u)return esc(i.name);
  return `<a class="vlink" href="${esc(u)}" target="_blank" rel="sponsored noopener" title="Search tours &amp; experiences for ${esc(VIATOR.types[type][0])} in ${esc(city)} on Viator (affiliate link)">${esc(i.name)}</a> <small class="via">via Viator ↗</small>`}
+// v1.14.6: separate city + date-night Viator search lines (on top of name-only links)
+function viatorPromo(type,label,city){const u=city?viatorUrl(type,city):null;if(!u)return "";
+ return `<p class="vpromo"><a class="vlink" href="${esc(u)}" target="_blank" rel="sponsored noopener" title="Search tours &amp; experiences for ${esc(VIATOR.types[type][0])} in ${esc(city)} on Viator (affiliate link)">${esc(label)}</a> <small class="via">via Viator ↗</small></p>`}
 const CATS={
 park:["Park","🌳","out",["chill","family","active","romantic"],1,30,0],
 nature:["Nature reserve","🦌","out",["chill","adventurous","romantic"],1,12,0],
@@ -687,7 +690,9 @@ function render(){if(!state.loc)return;const ctx=mkCtx();
  pool.forEach(i=>{if(out.indexOf(i)<0)out.push(i)});
  ranked=out;$("plCount").textContent=state.places.length?`(${state.places.length})`:"";
  const pCut=moodCut(out,ctx);
- let h=out.length&&pCut<0&&!out.some(i=>i.miss===0)?`<p class="status">Nothing matches every filter — here are the closest options.</p>`:"";
+ const vCity=viatorCity();
+ let h=vCity?viatorPromo("things","Tours & experiences in "+vCity,vCity):"";
+ h+=out.length&&pCut<0&&!out.some(i=>i.miss===0)?`<p class="status">Nothing matches every filter — here are the closest options.</p>`:"";
  h+=out.slice(0,state.show.pl).map((x,k)=>(k===pCut?moodDiv(pCut,"Other things nearby","places",ctx):"")+card(x)).join("");$("results").innerHTML=h;moreBtn("plMore",state.show.pl,out.length,"pl");
  renderIdeas(ctx);renderEvents(ctx)}
 function nearestOf(cats){let best=null;if(!cats)return null;for(const p of state.places)if(cats.indexOf(p.c)>=0&&(!best||p.dist<best.dist))best=p;return best}
@@ -720,7 +725,9 @@ function renderIdeas(ctx){const ideas=ANYWHERE.map(a=>{const o=ideaOpt(a);return
  {const grp=[];pool.forEach(i=>{const h=i.hits||0;let g=grp.filter(x=>x.h===h)[0];if(!g){g={h,l:[]};grp.push(g)}g.l.push(i)});const every=ctx.wx&&ctx.wx.cls==="indoor"?2:3,mix=[];
   grp.forEach(g=>{const hm=g.l.filter(i=>i.home),ot=g.l.filter(i=>!i.home);let k=0;while(hm.length||ot.length){k++;if((k%every===0&&hm.length)||!ot.length)mix.push(hm.shift());else mix.push(ot.shift())}});pool=mix}ideaPicks=pool;
  const iCut=moodCut(pool,ctx);$("idCount").textContent=`(${ctx.moods.size?pool.filter(i=>i.hits).length:pool.length} match)`;
- $("ideas").innerHTML=pool.slice(0,state.show.id).map((x,k)=>(k===iCut?moodDiv(iCut,"Other ideas","ideas",ctx):"")+card(x)).join("");moreBtn("idMore",state.show.id,pool.length,"id")}
+ const vCity=viatorCity();
+ let ih=vCity?viatorPromo("cruise","Sunset cruises",vCity)+viatorPromo("wine","Wine tastings",vCity)+viatorPromo("foodtour","Food tours",vCity):"";
+ $("ideas").innerHTML=ih+pool.slice(0,state.show.id).map((x,k)=>(k===iCut?moodDiv(iCut,"Other ideas","ideas",ctx):"")+card(x)).join("");moreBtn("idMore",state.show.id,pool.length,"id")}
 $("shuffle").onclick=()=>{state.ideaSeed=Math.floor(Math.random()*1e6)+1;state.show.id=5;if(state.loc)render()};
 // ===== Events =====
 const MOOD_KW={social:["trivia","meetup","bar events"],creative:["workshop","art class","craft"],active:["fun run","fitness class","sports"],romantic:["live music","wine tasting","concert"],
