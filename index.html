@@ -24,7 +24,7 @@ h2{font-size:1rem;margin:0 0 8px}label{font-size:.85rem;color:var(--mut);display
 input,select,button{font:inherit;color:inherit}input[type=text],select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg)}
 button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--chip)}
 button.pri{background:var(--acc);color:#fff;font-weight:600}#go.upd{box-shadow:0 0 0 3px rgba(232,103,60,.35);animation:ddpu 1.8s ease-in-out 3}#go[disabled]{opacity:.8;cursor:progress}@keyframes ddpu{50%{box-shadow:0 0 0 6px rgba(232,103,60,.12)}}#goHint{margin-top:6px;min-height:0}#goHint:empty{display:none}#resCard.ddfl{animation:ddfl .45s ease-out}@keyframes ddfl{from{opacity:.35}to{opacity:1}}@media(prefers-reduced-motion:reduce){#go.upd,#resCard.ddfl{animation:none}}button.sec{background:var(--acc2);color:#fff}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>div{min-width:0;max-width:100%}select{max-width:100%}.row>*{flex:1 1 140px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>div{min-width:0;max-width:100%}select{max-width:100%;min-width:0}#setting{width:100%;min-width:0;max-width:100%}.setfld{overflow-x:hidden}.row>*{flex:1 1 140px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:6px 11px;border-radius:999px;background:var(--chip);border:1px solid transparent;font-size:.88rem}
 .chip.on{background:var(--acc);color:#fff}
 #sugg{position:relative}#sugg ul{position:absolute;z-index:5;left:0;right:0;list-style:none;margin:2px 0;padding:0;background:var(--card);border:1px solid var(--bd);border-radius:10px;max-height:240px;overflow:auto}
@@ -58,7 +58,7 @@ button.pri{background:var(--acc);color:#fff;font-weight:600}#go.upd{box-shadow:0
 <div class="row"><div><label>People</label><select id="people"></select></div>
 <div><label>Budget</label><select id="budget"><option value="0">Free only</option><option value="1">$ cheap</option><option value="2" selected>$$ moderate</option><option value="3">$$$ splurge</option></select></div></div>
 <div class="row"><div><label>Radius: <b id="rv"></b> mi</label><input id="radius" type="range" min="1" max="25" value="8" style="width:100%"></div>
-<div><label>Setting</label><select id="setting"><option value="auto">Let the weather decide</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option><option value="any">Either</option></select></div></div>
+<div class="setfld"><label>Setting</label><select id="setting"><option value="auto">Let the weather decide</option><option value="indoor">Indoor</option><option value="outdoor">Outdoor</option><option value="any">Either</option></select></div></div>
 <div class="row" style="margin-top:12px"><button class="pri" id="go">🔎 Find activities</button><button class="sec" id="surprise">🎲 Surprise me</button></div><div class="status" id="goHint" role="status" aria-live="polite"></div>
 </section>
 <section class="card" id="pickCard" hidden></section>
