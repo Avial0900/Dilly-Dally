@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.14.5 — 2026-11-10 (built on live v1.14.4)
+- **Honest "rest of today" weather:** late in the evening at the chosen place (common when you look up a city in another time zone), today's forecast only has a few hours left. The high and low then came from those last hours, so it could read "48° / 48°F" as if that were the whole day. Now, when fewer than 6 forecast hours of the place's day remain (MET Norway), or NWS only has a "Tonight" period left, the weather line says "rest of today" after the temperatures. If the high and low are equal, it shows a single temperature (e.g. "48°F") in the weather line and the date chips. Full days are unchanged.
+
 ## v1.14.4 — 2026-11-09 (built on live v1.14.3)
 - **Stock exchanges no longer show up as markets:** some OSM and Wikipedia entries for stock and securities exchanges are tagged or described as a "market". Places then showed them as 🧺 markets, and the Events tab listed them under "Markets open that day". Examples: B3 in São Paulo (Wikipedia: "Brazilian stock exchange and OTC market") and the Nairobi Securities Exchange (OSM `amenity=marketplace`). A shared `NOT_MARKET_RE` filter now covers stock/securities/financial exchanges, bourse/Börse/Borsa/bolsa de valores, 証券/取引所/交易所, supermarkets/hypermarkets and marketing/market research. It is checked in three places: the Wikipedia classifier (such pages are skipped), `classify()` for `amenity=marketplace` (name + description), and `mkAdd()` for the market-hours list (Photon, Nominatim and Overpass). Real markets (Eastern Market, Mercado Municipal, Marché, Markt, 市場) are not affected.
 
