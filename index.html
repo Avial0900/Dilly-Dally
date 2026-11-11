@@ -764,7 +764,7 @@ async function loadTM(g){const {lat,lon}=state.loc;const d=state.date;
    const cost=min==null?2:min<=0?0:min<25?1:min<75?2:3;const io=/festival|fair|outdoor|park|amphitheat|stadium|field/i.test(txt+" "+(v.name||""))?"out":"in";
    const img=(e.images||[]).filter(x=>x.ratio==="1_1"||x.width<=400).sort((a,b)=>a.width-b.width)[0]||(e.images||[])[0];
    const vl=v.location?{lat:+v.location.latitude,lon:+v.location.longitude}:null;
-   return {name:e.name,event:true,url:e.url,time:e.dates&&e.dates.start&&(e.dates.start.localTime||"").slice(0,5),venue:v.name||"",city:v.city&&v.city.name,
+   return {cal:tmCal(e,v),name:e.name,event:true,url:e.url,time:e.dates&&e.dates.start&&(e.dates.start.localTime||"").slice(0,5),venue:v.name||"",city:v.city&&v.city.name,
     free:!!pr&&pr.min<=0&&(!pr.max||pr.max<=0),price:pr&&!(pr.min<=0&&(!pr.max||pr.max<=0))?`${pr.currency==="USD"?"$":pr.currency+" "}${Math.round(pr.min)}${pr.max&&pr.max!==pr.min?"–"+Math.round(pr.max):""}`:"",img:img&&img.url,genre:(cl.genre&&cl.genre.name)||(cl.segment&&cl.segment.name)||"Event",
     lat:vl&&vl.lat,lon:vl&&vl.lon,dist:vl?hav(+lat,+lon,vl.lat,vl.lon):null,meta:[e.name,"🎟",io,Array.from(new Set(moods)).slice(0,3),1,20,cost],deal:[]}})}
  catch(e){if(g===evGen){const m=e.message||"";state.ev.tmErr=/HTTP 429/.test(m)?"Ticketmaster rate limit hit (429) — try again in a minute.":mode==="proxy"?"Live events are temporarily unavailable ("+m.replace(/^[^:]*:\s*/,"")+").":/HTTP 401|HTTP 403/.test(m)?"Ticketmaster rejected the key (401). Check the Consumer Key in ⚙️ settings below.":/HTTP 429/.test(m)?"Ticketmaster rate limit hit (429) — try again in a minute.":"Ticketmaster: "+m}}}
@@ -881,7 +881,7 @@ function freeItem(e,lat,lon){const t=e.title;let cat=e.category&&FREE_CAT[e.cate
  const st=String(e.start),tm=/T(\d\d:\d\d)/.exec(st),te=e.end&&/T(\d\d:\d\d)/.exec(String(e.end));const multi=e.end&&String(e.end).slice(0,10)!==st.slice(0,10);
  let time=tm&&tm[1]!=="00:00"?tm[1]+(te&&!multi&&te[1]!=="00:00"?"–"+te[1]:""):"";if(multi)time=(time?time+" · ":"")+"runs through "+niceDate(String(e.end).slice(0,10));
  const io=e.indoor===true?"in":e.indoor===false?"out":"any";
- return {name:t,event:true,freeEv:true,free:true,util,url:e.url||"",lat:+e.lat,lon:+e.lon,dist:hav(+lat,+lon,+e.lat,+e.lon),time,venue:e.venue||"",genre:(cat==="other"?"Event":cat.replace(/^./,c=>c.toUpperCase()))+(e.city?" · "+e.city:""),price:"",
+ return {cal:freeCal(e),name:t,event:true,freeEv:true,free:true,util,url:e.url||"",lat:+e.lat,lon:+e.lon,dist:hav(+lat,+lon,+e.lat,+e.lon),time,venue:e.venue||"",genre:(cat==="other"?"Event":cat.replace(/^./,c=>c.toUpperCase()))+(e.city?" · "+e.city:""),price:"",
   meta:[t,"🆓",io,moods,1,util?4:20,0],deal:[],notes:e.notes||""}}
 // v1.13: regional feed ./data/free-events/index.json -> per-region files (bbox/date_range filtered), legacy single file as fallback.
 const FREE_PATH=/^free-events\/[a-z0-9-]+\.json$/;let freeIdx=null,freeIdxP=null,freeReg={},freeRegP={};
@@ -935,8 +935,35 @@ function renderEvents(ctx){const ev=state.ev;$("evTitle").textContent="Happening
  if(tmMode()&&!ev.tmBusy&&!ev.tmErr&&!tm.length)st.push("No ticketed events found for this date nearby.");
  $("evStatus").innerHTML=st.map(esc).join("<br>")+(ev.tmErr?' <button onclick="state.ev.key=\'\';loadEvents()">Retry</button>':"");
  const nEv=all.length+same.length+mk.open.length;$("evCount").textContent=nEv?`(${nEv})`:"";$("events").innerHTML=h;moreBtn("evMore",state.show.ev,all.length,"ev");$("evLinks").innerHTML=evLinks();paintTm()}
+// v1.14.8: "Add to calendar" (.ics) on Ticketmaster and free-event cards; built in the browser, nothing sent anywhere.
+function tmCal(e,v){try{const s=e.dates&&e.dates.start||{};if(!s.localDate)return null;const t=s.timeTBA||s.noSpecificTime?"":(s.localTime||"").slice(0,5);
+ return {d:s.localDate,t,utc:t&&s.dateTime?s.dateTime:"",loc:[v.name,v.address&&v.address.line1,v.city&&v.city.name].filter(Boolean).join(", ")}}catch(x){return null}}
+function freeCal(e){try{const st=String(e.start||""),en=String(e.end||"");const d=st.slice(0,10);if(!/^\d{4}-\d\d-\d\d$/.test(d))return null;
+ const multi=en&&en.slice(0,10)!==d;const tm=/T(\d\d:\d\d)/.exec(st),te=/T(\d\d:\d\d)/.exec(en);const timed=!multi&&tm&&tm[1]!=="00:00";
+ const hasOff=x=>/(Z|[+-]\d\d:?\d\d)$/.test(x);
+ return {d:multi&&state.date>=d&&state.date<=en.slice(0,10)?state.date:d,t:timed?tm[1]:"",te:timed&&te&&te[1]!=="00:00"&&te[1]>tm[1]?te[1]:"",
+  utc:timed&&hasOff(st)?st:"",utcEnd:timed&&te&&hasOff(en)&&te[1]>tm[1]?en:"",loc:[e.venue,e.address,e.city].filter(Boolean).join(", ")}}catch(x){return null}}
+const DD_CAL={};let ddCalN=0;
+function calKey(e){if(!e.cal)return "";const k="c"+(++ddCalN);DD_CAL[k]=e;return k}
+function icsEsc(x){return String(x||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n")}
+function icsFold(l){const o=[];while(l.length>73){o.push(l.slice(0,73));l=" "+l.slice(73)}o.push(l);return o.join("\r\n")}
+function icsUtc(d){return d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"")}
+function icsFor(e){const c=e.cal,L=[];const p2=n=>String(n).padStart(2,"0");
+ const fl=(d,t)=>d.replace(/-/g,"")+"T"+t.replace(":","")+"00";
+ if(!c.t){L.push("DTSTART;VALUE=DATE:"+c.d.replace(/-/g,""),"DTEND;VALUE=DATE:"+addDays(c.d,1).replace(/-/g,""))}
+ else{const su=c.utc?new Date(c.utc):null;
+  if(su&&!isNaN(su)){const eu=c.utcEnd?new Date(c.utcEnd):null;L.push("DTSTART:"+icsUtc(su),"DTEND:"+icsUtc(eu&&!isNaN(eu)&&eu>su?eu:new Date(+su+2*36e5)))}
+  else{const [h,m]=c.t.split(":").map(Number);let et=c.te;if(!et){const eh=h+2;et=eh>23?"23:59":p2(eh)+":"+p2(m)}L.push("DTSTART:"+fl(c.d,c.t),"DTEND:"+fl(c.d,et))}}
+ const desc=(e.url?"Details: "+e.url+"\n":"")+"Found with Dilly-Dally (letsdillydally.com). Times and details can change, so check before you go.";
+ return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Dilly-Dally//letsdillydally.com//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+  "UID:"+Date.now().toString(36)+Math.random().toString(36).slice(2,8)+"@letsdillydally.com","DTSTAMP:"+icsUtc(new Date()),...L,
+  "SUMMARY:"+icsEsc(e.name),c.loc?"LOCATION:"+icsEsc(c.loc):"",e.url&&/^https?:\/\//.test(e.url)?"URL:"+e.url:"","DESCRIPTION:"+icsEsc(desc),"END:VEVENT","END:VCALENDAR"]
+  .filter(Boolean).map(icsFold).join("\r\n")+"\r\n"}
+document.addEventListener("click",ev=>{const a=ev.target.closest&&ev.target.closest("a[data-ics]");if(!a)return;const e=DD_CAL[a.dataset.ics];if(!e)return;ev.preventDefault();
+ try{const blob=new Blob([icsFor(e)],{type:"text/calendar;charset=utf-8"});const u=URL.createObjectURL(blob);const x=document.createElement("a");x.href=u;
+  x.download=(String(e.name).replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-").slice(0,50)||"event")+".ics";document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(u),30000)}catch(x){}});
 function evCard(e){return `<div class="res">${e.img?`<img class="evimg" src="${esc(e.img)}" alt="" loading="lazy">`:""}<h3>${e.market?"🧺":e.freeEv?"🆓":"🎟"} ${esc(e.name)}</h3><div class="meta">${esc(e.genre)}${e.time?" · 🕒 "+esc(e.time):""}${e.venue?" · 📍 "+esc(e.venue):""}${e.dist!=null?` · ${e.dist.toFixed(1)} mi`:""}${e.price?" · "+esc(e.price):""}${e.free?' <span class="badge free">Free</span>':""}</div>
- ${e.market?holNote(e.oh):""}<div class="why">✅ ${esc(e.why.join(" · ")||"happening that day")}</div><div class="links">${e.url?`<a href="${esc(e.url)}" target="_blank" rel="noopener">${e.freeEv?"ℹ️ Details":"🎫 Tickets"}</a>`:""}${e.lat?`<a href="https://www.google.com/maps/search/?api=1&query=${e.lat},${e.lon}" target="_blank" rel="noopener">🗺 Maps</a>`:""}</div><div style="clear:both"></div></div>`}
+ ${e.market?holNote(e.oh):""}<div class="why">✅ ${esc(e.why.join(" · ")||"happening that day")}</div><div class="links">${e.url?`<a href="${esc(e.url)}" target="_blank" rel="noopener">${e.freeEv?"ℹ️ Details":"🎫 Tickets"}</a>`:""}${e.lat?`<a href="https://www.google.com/maps/search/?api=1&query=${e.lat},${e.lon}" target="_blank" rel="noopener">🗺 Maps</a>`:""}${!e.market&&!e.util&&e.cal?`<a href="#" data-ics="${calKey(e)}">📅 Add to calendar</a>`:""}</div><div style="clear:both"></div></div>`}
 function holNote(oh){return state.ev&&state.ev.hol&&state.ev.hol.some(h=>h.same)&&!/\bPH\b/.test(oh||"")?`<div class="holn">🎌 Holiday — hours may differ</div>`:""}
 function card(i,isPick){const [label,emo,io]=i.meta;const city=(state.loc.name||"").replace(/^📡 /,"").split(",")[0];
  const t=i.tags||{};let links="";
