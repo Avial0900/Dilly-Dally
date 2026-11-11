@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.14.8 — 2026-11-11 (built on live v1.14.7)
+- **📅 Add to calendar on events:** every Ticketmaster and free-event card on the Events tab now has an "Add to calendar" link next to Details/Tickets and Maps. Tapping it downloads a standard `.ics` file (iPhone/iPad open it straight into Calendar; Google Calendar, Outlook and Android import it). The file is built in the browser: nothing is sent anywhere, no new third-party service, script or tracker, and no affiliate link.
+  - Title, venue/address as location, the event's link as URL, and a short "times can change, check before you go" note.
+  - Times: Ticketmaster `dateTime` (UTC) and free events whose start has a UTC offset are written in UTC, so they land at the right time in any time zone. Otherwise the local time is used. With no end time, it's 2 hours. Events with no time (or TBA) are all-day. A multi-day free event becomes an all-day entry on the date you searched.
+  - Not shown on market cards (they're open hours, not events) or on practical library services that are filtered as utilities.
+- Tested at iPhone size (375×812) with a cold cache in WebKit and Chromium for Garden City, MI (5 of 5 event cards with the link, valid `.ics`; e.g. Veterans Day Ceremony 11:00–13:00 ET → 16:00–18:00Z) and Cape Town (the Ticketmaster card has the link, the 4 market cards don't). No page errors, and page width stays 375px.
+
 ## v1.14.7 — 2026-11-10 (built on live v1.14.6)
 - **Date night landing pages:** new `/ann-arbor-date-night`, and `/detroit-date-night` and `/royal-oak-date-night` rewritten from a short blurb into real guides (12–14 verified local date ideas each, grouped by winter/holiday, shows, free/outdoors and daytime, with a short FAQ and a source link per idea). Every CTA opens the app with the city filled in, the romantic mood and the Date night tab (`./?q=…&lat=…&lon=…&mood=romantic&tab=date&ref=seo-date-<city>`), using the existing v1.11 share-link parser (one auto-run on load, like the other landing links; unknown `ref` is ignored). No scripts on the landing pages and no Viator links.
 - **Footer Explore links:** added "Date night ideas in Ann Arbor" and renamed the Royal Oak link to "Date night ideas in Royal Oak, MI". No other change to index.html.
