@@ -1,14 +1,152 @@
 {
  "schema": 1,
- "updated": "2026-11-09T06:22:30-05:00",
+ "updated": "2026-11-10T12:48:55-05:00",
  "files": [
+  {
+   "region": "atlanta",
+   "path": "free-events/atlanta.json",
+   "city_list": [
+    "Atlanta",
+    "Fulton County"
+   ],
+   "count": 1454,
+   "bbox": [
+    33.0306,
+    -85.1644,
+    34.5901,
+    -83.7096
+   ],
+   "center": [
+    33.749,
+    -84.388
+   ],
+   "region_center": [
+    33.749,
+    -84.388
+   ],
+   "bbox_unpadded": [
+    33.5306,
+    -84.6644,
+    34.0901,
+    -84.2096
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 610073
+  },
+  {
+   "region": "baltimore",
+   "path": "free-events/baltimore.json",
+   "city_list": [
+    "Baltimore"
+   ],
+   "count": 793,
+   "bbox": [
+    38.7379,
+    -77.1893,
+    39.8595,
+    -76.0583
+   ],
+   "center": [
+    39.2904,
+    -76.6122
+   ],
+   "region_center": [
+    39.2904,
+    -76.6122
+   ],
+   "bbox_unpadded": [
+    39.2379,
+    -76.6893,
+    39.3595,
+    -76.5583
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-08"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 312527
+  },
+  {
+   "region": "boston",
+   "path": "free-events/boston.json",
+   "city_list": [
+    "Boston"
+   ],
+   "count": 1581,
+   "bbox": [
+    41.757,
+    -71.6678,
+    42.8778,
+    -70.5285
+   ],
+   "center": [
+    42.3601,
+    -71.0589
+   ],
+   "region_center": [
+    42.3601,
+    -71.0589
+   ],
+   "bbox_unpadded": [
+    42.257,
+    -71.1678,
+    42.3778,
+    -71.0285
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 630675
+  },
+  {
+   "region": "charlotte",
+   "path": "free-events/charlotte.json",
+   "city_list": [
+    "Charlotte",
+    "Mecklenburg County"
+   ],
+   "count": 1896,
+   "bbox": [
+    34.5865,
+    -81.4888,
+    35.9985,
+    -80.1588
+   ],
+   "center": [
+    35.2271,
+    -80.8431
+   ],
+   "region_center": [
+    35.2271,
+    -80.8431
+   ],
+   "bbox_unpadded": [
+    35.0865,
+    -80.9888,
+    35.4985,
+    -80.6588
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 794149
+  },
   {
    "region": "chicago-north",
    "path": "free-events/chicago-north.json",
    "city_list": [
     "Chicago"
    ],
-   "count": 1723,
+   "count": 1713,
    "bbox": [
     41.3768,
     -88.3175,
@@ -30,11 +168,11 @@
     -87.6041
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 709774
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 706326
   },
   {
    "region": "chicago-south",
@@ -42,7 +180,7 @@
    "city_list": [
     "Chicago"
    ],
-   "count": 1554,
+   "count": 1543,
    "bbox": [
     41.1573,
     -88.2818,
@@ -64,11 +202,11 @@
     -87.5336
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-07"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 633833
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 629590
   },
   {
    "region": "cincinnati",
@@ -77,7 +215,7 @@
     "Cincinnati",
     "Hamilton County"
    ],
-   "count": 1585,
+   "count": 1545,
    "bbox": [
     38.585,
     -85.2875,
@@ -99,11 +237,11 @@
     -84.268
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 700548
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 683534
   },
   {
    "region": "cleveland-east",
@@ -112,7 +250,7 @@
     "Cleveland",
     "Cuyahoga County suburbs"
    ],
-   "count": 1655,
+   "count": 1615,
    "bbox": [
     40.8141,
     -82.1487,
@@ -134,11 +272,11 @@
     -81.3891
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 646898
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 631286
   },
   {
    "region": "cleveland-west",
@@ -147,7 +285,7 @@
     "Cleveland",
     "Cuyahoga County suburbs"
    ],
-   "count": 1660,
+   "count": 1615,
    "bbox": [
     40.8165,
     -82.4208,
@@ -169,11 +307,11 @@
     -81.6667
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 635458
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 617724
   },
   {
    "region": "columbus-east",
@@ -182,7 +320,7 @@
     "Columbus",
     "Franklin County suburbs"
    ],
-   "count": 1676,
+   "count": 1626,
    "bbox": [
     39.3935,
     -83.4683,
@@ -204,11 +342,11 @@
     -82.7868
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 650440
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 631168
   },
   {
    "region": "columbus-west",
@@ -217,7 +355,7 @@
     "Columbus",
     "Franklin County suburbs"
    ],
-   "count": 1966,
+   "count": 1890,
    "bbox": [
     39.3894,
     -83.6366,
@@ -239,11 +377,11 @@
     -82.9752
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 756330
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 727197
   },
   {
    "region": "detroit-metro",
@@ -262,7 +400,7 @@
     "Inkster",
     "Northville"
    ],
-   "count": 1436,
+   "count": 1424,
    "bbox": [
     41.7693,
     -83.9913,
@@ -284,11 +422,11 @@
     -82.9372
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 601966
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 597591
   },
   {
    "region": "indianapolis",
@@ -296,7 +434,7 @@
    "city_list": [
     "Indianapolis"
    ],
-   "count": 709,
+   "count": 678,
    "bbox": [
     39.1508,
     -86.7897,
@@ -318,11 +456,11 @@
     -85.9955
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-07"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 282019
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 269922
   },
   {
    "region": "kansas-city",
@@ -332,7 +470,7 @@
     "Kansas City KS",
     "Johnson County KS"
    ],
-   "count": 637,
+   "count": 609,
    "bbox": [
     38.243,
     -95.4697,
@@ -354,11 +492,11 @@
     -94.5321
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 268435
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 256962
   },
   {
    "region": "madison",
@@ -366,7 +504,7 @@
    "city_list": [
     "Madison"
    ],
-   "count": 186,
+   "count": 178,
    "bbox": [
     42.5325,
     -90.0176,
@@ -388,11 +526,81 @@
     -89.3176
    ],
    "date_range": [
-    "2026-11-09",
+    "2026-11-10",
     "2027-01-08"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 76576
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 73381
+  },
+  {
+   "region": "miami-north",
+   "path": "free-events/miami-north.json",
+   "city_list": [
+    "Miami",
+    "Miami-Dade County"
+   ],
+   "count": 1525,
+   "bbox": [
+    25.2485,
+    -80.9014,
+    26.4604,
+    -79.6207
+   ],
+   "center": [
+    25.8544,
+    -80.261
+   ],
+   "region_center": [
+    25.7617,
+    -80.1918
+   ],
+   "bbox_unpadded": [
+    25.7485,
+    -80.4014,
+    25.9604,
+    -80.1207
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 585237
+  },
+  {
+   "region": "miami-south",
+   "path": "free-events/miami-south.json",
+   "city_list": [
+    "Miami",
+    "Miami-Dade County"
+   ],
+   "count": 1262,
+   "bbox": [
+    25.0063,
+    -80.9417,
+    26.2396,
+    -79.7403
+   ],
+   "center": [
+    25.6229,
+    -80.341
+   ],
+   "region_center": [
+    25.7617,
+    -80.1918
+   ],
+   "bbox_unpadded": [
+    25.5063,
+    -80.4417,
+    25.7396,
+    -80.2403
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 483079
   },
   {
    "region": "milwaukee",
@@ -400,7 +608,7 @@
    "city_list": [
     "Milwaukee"
    ],
-   "count": 720,
+   "count": 711,
    "bbox": [
     42.4735,
     -88.5077,
@@ -422,11 +630,158 @@
     -87.8867
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 270016
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 266600
+  },
+  {
+   "region": "new-york-north",
+   "path": "free-events/new-york-north.json",
+   "city_list": [
+    "New York",
+    "Brooklyn",
+    "Manhattan",
+    "Queens",
+    "Bronx",
+    "Staten Island"
+   ],
+   "count": 1637,
+   "bbox": [
+    40.1651,
+    -74.506,
+    41.3767,
+    -73.27
+   ],
+   "center": [
+    40.7709,
+    -73.888
+   ],
+   "region_center": [
+    40.7128,
+    -74.006
+   ],
+   "bbox_unpadded": [
+    40.6651,
+    -74.006,
+    40.8767,
+    -73.77
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 711754
+  },
+  {
+   "region": "new-york-south",
+   "path": "free-events/new-york-south.json",
+   "city_list": [
+    "New York",
+    "Brooklyn",
+    "Manhattan",
+    "Queens",
+    "Bronx",
+    "Staten Island"
+   ],
+   "count": 1603,
+   "bbox": [
+    40.0026,
+    -74.7518,
+    41.1645,
+    -73.2635
+   ],
+   "center": [
+    40.5836,
+    -74.0076
+   ],
+   "region_center": [
+    40.7128,
+    -74.006
+   ],
+   "bbox_unpadded": [
+    40.5026,
+    -74.2518,
+    40.6645,
+    -73.7635
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 686424
+  },
+  {
+   "region": "philadelphia",
+   "path": "free-events/philadelphia.json",
+   "city_list": [
+    "Philadelphia",
+    "Delaware County PA suburbs"
+   ],
+   "count": 1651,
+   "bbox": [
+    39.3196,
+    -76.0133,
+    40.5429,
+    -74.6647
+   ],
+   "center": [
+    39.9526,
+    -75.1652
+   ],
+   "region_center": [
+    39.9526,
+    -75.1652
+   ],
+   "bbox_unpadded": [
+    39.8196,
+    -75.5133,
+    40.0429,
+    -75.1647
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 617567
+  },
+  {
+   "region": "pittsburgh",
+   "path": "free-events/pittsburgh.json",
+   "city_list": [
+    "Pittsburgh"
+   ],
+   "count": 1034,
+   "bbox": [
+    39.8944,
+    -80.5565,
+    40.9762,
+    -79.3992
+   ],
+   "center": [
+    40.4406,
+    -79.9959
+   ],
+   "region_center": [
+    40.4406,
+    -79.9959
+   ],
+   "bbox_unpadded": [
+    40.3944,
+    -80.0565,
+    40.4762,
+    -79.8992
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 433646
   },
   {
    "region": "st-louis",
@@ -434,7 +789,7 @@
    "city_list": [
     "St. Louis"
    ],
-   "count": 874,
+   "count": 856,
    "bbox": [
     38.0547,
     -90.7978,
@@ -456,11 +811,46 @@
     -90.1994
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 339093
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 332452
+  },
+  {
+   "region": "tampa",
+   "path": "free-events/tampa.json",
+   "city_list": [
+    "Tampa",
+    "Hillsborough County"
+   ],
+   "count": 651,
+   "bbox": [
+    27.2187,
+    -83.1231,
+    28.6515,
+    -81.7524
+   ],
+   "center": [
+    27.9506,
+    -82.4572
+   ],
+   "region_center": [
+    27.9506,
+    -82.4572
+   ],
+   "bbox_unpadded": [
+    27.7187,
+    -82.6231,
+    28.1515,
+    -82.2524
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 272136
   },
   {
    "region": "twin-cities",
@@ -470,7 +860,7 @@
     "Saint Paul",
     "Hennepin County suburbs"
    ],
-   "count": 1622,
+   "count": 1584,
    "bbox": [
     44.344,
     -94.2434,
@@ -492,11 +882,45 @@
     -93.0119
    ],
    "date_range": [
-    "2026-11-09",
-    "2027-01-08"
+    "2026-11-10",
+    "2027-01-09"
    ],
-   "updated": "2026-11-09T06:22:30-05:00",
-   "bytes": 642486
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 628152
+  },
+  {
+   "region": "washington-dc",
+   "path": "free-events/washington-dc.json",
+   "city_list": [
+    "Washington"
+   ],
+   "count": 1096,
+   "bbox": [
+    38.3313,
+    -77.5972,
+    39.4803,
+    -76.4296
+   ],
+   "center": [
+    38.9072,
+    -77.0369
+   ],
+   "region_center": [
+    38.9072,
+    -77.0369
+   ],
+   "bbox_unpadded": [
+    38.8313,
+    -77.0972,
+    38.9803,
+    -76.9296
+   ],
+   "date_range": [
+    "2026-11-10",
+    "2027-01-09"
+   ],
+   "updated": "2026-11-10T12:48:55-05:00",
+   "bytes": 432641
   }
  ]
 }
