@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.14.9 — 2026-11-12 (built on live v1.14.8)
+- **Practical library services stay out of the fun list:** "Homebound Delivery Service" (Westland), "One-on-One Computer Assistance" and support-group listings came tagged with a vibe (e.g. nerdy) in the free-events feed, so they could rank as vibe matches and got the new 📅 Add to calendar link. The `FREE_UTIL` filter now also catches homebound, delivery service, computer assistance / one-on-one computer and support group. Those cards are treated like the other library utilities: no vibe match, ranked last, and no Add to calendar link. No other change.
+- Tested at iPhone size (375×812) with a cold cache in WebKit and Chromium: Westland, MI, nerdy, Nov 25 — before, Homebound Delivery Service was the #1 event card with a calendar link; now it is 15th of 16 with no calendar link. Garden City, MI (35 event cards) and Kyoto load normally, no page errors, page width stays 375px.
+
 ## v1.14.8 — 2026-11-11 (built on live v1.14.7)
 - **📅 Add to calendar on events:** every Ticketmaster and free-event card on the Events tab now has an "Add to calendar" link next to Details/Tickets and Maps. Tapping it downloads a standard `.ics` file (iPhone/iPad open it straight into Calendar; Google Calendar, Outlook and Android import it). The file is built in the browser: nothing is sent anywhere, no new third-party service, script or tracker, and no affiliate link.
   - Title, venue/address as location, the event's link as URL, and a short "times can change, check before you go" note.
