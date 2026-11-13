@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.14.10 — 2026-11-13 (built on live v1.14.9)
+- **Friendly market status instead of raw server errors:** when no markets were found and one of the map sources failed, the Events tab printed the raw error, e.g. "Markets: Overpass: dilly-dally-events.dilly-dally.workers.dev: timed out after 8s" (seen live for Marfa, TX while Overpass is down). Now it says "Some map data is slow to load right now, so a few small markets may be missing." when Photon or Nominatim still answered, or "Couldn't check markets right now because the map servers are busy. Try again in a few minutes." when Photon, Nominatim and Overpass all failed. The raw text is kept in `state.mk.errRaw` for debugging. No other change.
+- Tested at iPhone size (375×812) with a cold cache in WebKit and Chromium: Marfa, TX (Overpass timing out: the softer line), Marfa with Photon and Nominatim blocked (the "map servers are busy" line), Osaka (a market found, no message), Garden City, MI and Nairobi load normally. No page errors, and page width stays 375px.
+
 ## v1.14.9 — 2026-11-12 (built on live v1.14.8)
 - **Practical library services stay out of the fun list:** "Homebound Delivery Service" (Westland) and support-group listings came tagged with a vibe (e.g. nerdy) in the free-events feed, so they could rank as vibe matches and got the new 📅 Add to calendar link. The `FREE_UTIL` filter now also catches homebound, delivery service and support group. Those cards are treated like the other library utilities: no vibe match, ranked last, and no Add to calendar link. No other change.
 - **Computer classes and one-on-one tech help count as nerdy again** (Alex's Oct 30 ask): removed computer basics, tech help, online shopping helps, Microsoft/Excel/word processing and one-on-one computer assistance from the utility filter, so they keep their nerdy vibe and get the Add to calendar link.
