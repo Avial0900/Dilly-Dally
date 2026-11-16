@@ -758,10 +758,14 @@ async function loadEvents(){if(!state.loc)return;const pp=placeParts();const key
 const TM_MOOD=[[/rock|pop|alternative|indie|country|r&b|hip-hop|rap|dance|electronic/i,["social"]],[/jazz|blues|classical|folk|acoustic|world/i,["romantic","chill"]],
  [/comedy/i,["social","chill"]],[/theatre|theater|musical|opera|ballet|dance/i,["romantic","creative"]],[/family|children|circus|ice shows|magic/i,["family"]],[/sports|basketball|football|hockey|baseball|soccer|wrestling|running|marathon/i,["active","social"]],
  [/film|cinema/i,["cozy","chill"]],[/fair|festival/i,["adventurous","social"]],[/expo|convention|comic|gaming|lecture|science/i,["nerdy"]],[/art|craft|workshop/i,["creative"]]];
+// v1.14.12: skip Ticketmaster add-on listings that are not events (suite rentals, "Ticket + Hotel Packages", upgrades/upsells, VIP add-ons,
+// parking, gift card redemption). The real show is listed separately, so nothing is lost; this just stops "Los Tigres del Norte - Suite Rental" showing as its own event.
+const TM_ADDON=/(?:^|\s[-–—|:]\s*)(?:suite rentals?|(?:caesars )?ticket \+ hotel packages?|hotel packages?|(?:premium |vip )?parking(?: pass(?:es)?)?|gift card redemption|(?:vip )?(?:pre-?show tour )?add-?on)\s*$|^(?:upgrade|upsell|parking)\s*:|\bgift card redemption\b|\bparking (?:pass|permit|only)\b/i;
+function tmAddon(e){const cl=(e&&e.classifications&&e.classifications[0])||{};return (cl.type&&cl.type.name==="Upsell")||TM_ADDON.test(String((e&&e.name)||"").trim())}
 async function loadTM(g){const {lat,lon}=state.loc;const d=state.date;
  const mode=tmMode();const qs=`latlong=${(+lat).toFixed(4)},${(+lon).toFixed(4)}&radius=${Math.max(5,Math.min(100,+fv("radius")*2))}&unit=miles&localStartDateTime=${d}T00:00:00,${d}T23:59:59&size=50&sort=relevance,desc`;
  const url=mode==="proxy"?EVENTS_PROXY_URL+(EVENTS_PROXY_URL.indexOf("?")<0?"?":"&")+qs:`https://app.ticketmaster.com/discovery/v2/events.json?apikey=${encodeURIComponent(tmKey())}&`+qs;
- try{const j=await fetchJ(url,{},15000);if(g!==evGen)return;const evs=(j._embedded&&j._embedded.events)||[];
+ try{const j=await fetchJ(url,{},15000);if(g!==evGen)return;const evs=((j._embedded&&j._embedded.events)||[]).filter(e=>!tmAddon(e));
   state.ev.tm=evs.map(e=>{const cl=(e.classifications&&e.classifications[0])||{};const txt=[e.name,cl.segment&&cl.segment.name,cl.genre&&cl.genre.name,cl.subGenre&&cl.subGenre.name].filter(Boolean).join(" ");
    let moods=[];TM_MOOD.forEach(m=>{if(m[0].test(txt))moods=moods.concat(m[1])});if(!moods.length)moods=["social"];
    const v=(e._embedded&&e._embedded.venues&&e._embedded.venues[0])||{};const pr=e.priceRanges&&e.priceRanges[0];const min=pr?pr.min:null;
