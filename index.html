@@ -618,10 +618,16 @@ const WIKI_RULES=[[NOT_MARKET_RE,null],[/\b(school|university|college|hospital|d
 [/stadium|arena|ballpark|スタジアム|estadio/i,"leisure=sports_centre"],[/\blibrary\b|図書館|bibliothèque|biblioteca/i,"amenity=library"],[/\bmarket\b|市場|marché|mercado/i,"amenity=marketplace"],[/brewery|brasserie/i,"craft=brewery"],
 [/observation|viewpoint|mountain|\bhill\b|展望/i,"tourism=viewpoint"],[/castle|palace|temple|shrine|cathedral|landmark|monument|memorial|tower|historic|lighthouse|寺|神社|城|château|palacio|plaza|square|\bbridge\b/i,"tourism=attraction"]];
 function wikiClass(text){for(const [re,tag] of WIKI_RULES){if(re.test(text))return tag}return undefined}
+// v1.14.13: skip Wikipedia articles about historical events (sieges, battles, attacks, fires...) that only matched a place word, e.g. "Siege of Sanjō Palace"
+// (1160 siege) showed as a Kyoto landmark. Monuments, memorials, battle sites, hills and battlefields stay.
+const WIKI_EV_DESC=/^(\d{3,4}s? )?([\w-]+ ){0,3}(sieges?|battles?|skirmish|rebellion|uprising|revolt|massacre|riots?|incident|assassination|bombings?|shootings?|earthquake|explosion|fire|crash|disaster|attacks?|raid|derailment|coup)\b/i;
+const WIKI_EV_TITLE=/^(siege|battle|massacre|bombing|assassination|sack|burning|fall) of\b|\b(attack|bombing|shooting|massacre|riots?|crash|derailment|explosion)$|(の戦い|の乱|の変|事件|合戦|空襲)$/i;
+const WIKI_EV_KEEP=/monument|memorial|\bsite\b|\bhill\b|park|museum|statue|marker|building|house|cemetery|battlefield|\bfort\b|plaque|tower|bridge|記念|碑|跡|公園/i;
+function wikiIsEvent(title,desc){desc=desc||"";return (WIKI_EV_DESC.test(desc)||WIKI_EV_TITLE.test(title))&&!WIKI_EV_KEEP.test(title+" "+desc)}
 async function wikiSource(lat,lon,r,key,onBatch){const cc=((state.loc.name||"").split(",").pop()||"").trim().toUpperCase();const langs=["en"];if(CC_LANG[cc])langs.push(CC_LANG[cc]);
  const rad=Math.min(10000,Math.max(500,r));let ok=0,last="";
  await Promise.all(langs.map(async lg=>{try{const j=await fetchJ(`https://${lg}.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${(+lat).toFixed(5)}|${(+lon).toFixed(5)}&ggsradius=${rad}&ggslimit=200&prop=description|coordinates&colimit=max&format=json&origin=*`,{},15000);ok++;
-  const pages=(j.query&&j.query.pages)||{};const els=[];for(const id in pages){const pg=pages[id];const co=pg.coordinates&&pg.coordinates[0];if(!co||co.lat==null||co.lon==null)continue;const txt=pg.title+" "+(pg.description||"");const tg=wikiClass(txt);if(!tg)continue;const kv=tg.split("=");
+  const pages=(j.query&&j.query.pages)||{};const els=[];for(const id in pages){const pg=pages[id];const co=pg.coordinates&&pg.coordinates[0];if(!co||co.lat==null||co.lon==null)continue;if(wikiIsEvent(pg.title,pg.description))continue;const txt=pg.title+" "+(pg.description||"");const tg=wikiClass(txt);if(!tg)continue;const kv=tg.split("=");
    const t={name:pg.title.replace(/\s*\(.*\)$/,""),website:`https://${lg}.wikipedia.org/?curid=${pg.pageid}`,description:pg.description||""};t[kv[0]]=kv[1];els.push({type:"wiki",id:lg+pg.pageid,wiki:true,lat:co.lat,lon:co.lon,tags:t})}
   if(state.placesFor===key)onBatch(els)}catch(e){last=e.message}}));
  return ok?"":(last||"failed")}
