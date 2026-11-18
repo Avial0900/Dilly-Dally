@@ -618,10 +618,16 @@ const WIKI_RULES=[[NOT_MARKET_RE,null],[/\b(school|university|college|hospital|d
 [/stadium|arena|ballpark|スタジアム|estadio/i,"leisure=sports_centre"],[/\blibrary\b|図書館|bibliothèque|biblioteca/i,"amenity=library"],[/\bmarket\b|市場|marché|mercado/i,"amenity=marketplace"],[/brewery|brasserie/i,"craft=brewery"],
 [/observation|viewpoint|mountain|\bhill\b|展望/i,"tourism=viewpoint"],[/castle|palace|temple|shrine|cathedral|landmark|monument|memorial|tower|historic|lighthouse|寺|神社|城|château|palacio|plaza|square|\bbridge\b/i,"tourism=attraction"]];
 function wikiClass(text){for(const [re,tag] of WIKI_RULES){if(re.test(text))return tag}return undefined}
+// v1.14.13: skip Wikipedia articles about historical events (sieges, battles, attacks, fires...) that only matched a place word, e.g. "Siege of Sanjō Palace"
+// (1160 siege) showed as a Kyoto landmark. Monuments, memorials, battle sites, hills and battlefields stay.
+const WIKI_EV_DESC=/^(\d{3,4}s? )?([\w-]+ ){0,3}(sieges?|battles?|skirmish|rebellion|uprising|revolt|massacre|riots?|incident|assassination|bombings?|shootings?|earthquake|explosion|fire|crash|disaster|attacks?|raid|derailment|coup)\b/i;
+const WIKI_EV_TITLE=/^(siege|battle|massacre|bombing|assassination|sack|burning|fall) of\b|\b(attack|bombing|shooting|massacre|riots?|crash|derailment|explosion)$|(の戦い|の乱|の変|事件|合戦|空襲)$/i;
+const WIKI_EV_KEEP=/monument|memorial|\bsite\b|\bhill\b|park|museum|statue|marker|building|house|cemetery|battlefield|\bfort\b|plaque|tower|bridge|記念|碑|跡|公園/i;
+function wikiIsEvent(title,desc){desc=desc||"";return (WIKI_EV_DESC.test(desc)||WIKI_EV_TITLE.test(title))&&!WIKI_EV_KEEP.test(title+" "+desc)}
 async function wikiSource(lat,lon,r,key,onBatch){const cc=((state.loc.name||"").split(",").pop()||"").trim().toUpperCase();const langs=["en"];if(CC_LANG[cc])langs.push(CC_LANG[cc]);
  const rad=Math.min(10000,Math.max(500,r));let ok=0,last="";
  await Promise.all(langs.map(async lg=>{try{const j=await fetchJ(`https://${lg}.wikipedia.org/w/api.php?action=query&generator=geosearch&ggscoord=${(+lat).toFixed(5)}|${(+lon).toFixed(5)}&ggsradius=${rad}&ggslimit=200&prop=description|coordinates&colimit=max&format=json&origin=*`,{},15000);ok++;
-  const pages=(j.query&&j.query.pages)||{};const els=[];for(const id in pages){const pg=pages[id];const co=pg.coordinates&&pg.coordinates[0];if(!co||co.lat==null||co.lon==null)continue;const txt=pg.title+" "+(pg.description||"");const tg=wikiClass(txt);if(!tg)continue;const kv=tg.split("=");
+  const pages=(j.query&&j.query.pages)||{};const els=[];for(const id in pages){const pg=pages[id];const co=pg.coordinates&&pg.coordinates[0];if(!co||co.lat==null||co.lon==null)continue;if(wikiIsEvent(pg.title,pg.description))continue;const txt=pg.title+" "+(pg.description||"");const tg=wikiClass(txt);if(!tg)continue;const kv=tg.split("=");
    const t={name:pg.title.replace(/\s*\(.*\)$/,""),website:`https://${lg}.wikipedia.org/?curid=${pg.pageid}`,description:pg.description||""};t[kv[0]]=kv[1];els.push({type:"wiki",id:lg+pg.pageid,wiki:true,lat:co.lat,lon:co.lon,tags:t})}
   if(state.placesFor===key)onBatch(els)}catch(e){last=e.message}}));
  return ok?"":(last||"failed")}
@@ -761,19 +767,21 @@ const TM_MOOD=[[/rock|pop|alternative|indie|country|r&b|hip-hop|rap|dance|electr
 // v1.14.12: skip Ticketmaster add-on listings that are not events (suite rentals, "Ticket + Hotel Packages", upgrades/upsells, VIP add-ons,
 // parking, gift card redemption). The real show is listed separately, so nothing is lost; this just stops "Los Tigres del Norte - Suite Rental" showing as its own event.
 const TM_ADDON=/(?:^|\s[-–—|:]\s*)(?:suite rentals?|(?:caesars )?ticket \+ hotel packages?|hotel packages?|(?:premium |vip )?parking(?: pass(?:es)?)?|gift card redemption|(?:vip )?(?:pre-?show tour )?add-?on)\s*$|^(?:upgrade|upsell|parking)\s*:|\bgift card redemption\b|\bparking (?:pass|permit|only)\b/i;
+// v1.14.14: Ticketmaster fills empty categories with "Undefined" (and a catch-all "Miscellaneous"); never show those as an event's category.
+function tmCn(o){const n=o&&o.name?String(o.name).trim():"";return /^(undefined|miscellaneous|other|n\/a)$/i.test(n)?"":n}
 function tmAddon(e){const cl=(e&&e.classifications&&e.classifications[0])||{};return (cl.type&&cl.type.name==="Upsell")||TM_ADDON.test(String((e&&e.name)||"").trim())}
 async function loadTM(g){const {lat,lon}=state.loc;const d=state.date;
  const mode=tmMode();const qs=`latlong=${(+lat).toFixed(4)},${(+lon).toFixed(4)}&radius=${Math.max(5,Math.min(100,+fv("radius")*2))}&unit=miles&localStartDateTime=${d}T00:00:00,${d}T23:59:59&size=50&sort=relevance,desc`;
  const url=mode==="proxy"?EVENTS_PROXY_URL+(EVENTS_PROXY_URL.indexOf("?")<0?"?":"&")+qs:`https://app.ticketmaster.com/discovery/v2/events.json?apikey=${encodeURIComponent(tmKey())}&`+qs;
  try{const j=await fetchJ(url,{},15000);if(g!==evGen)return;const evs=((j._embedded&&j._embedded.events)||[]).filter(e=>!tmAddon(e));
-  state.ev.tm=evs.map(e=>{const cl=(e.classifications&&e.classifications[0])||{};const txt=[e.name,cl.segment&&cl.segment.name,cl.genre&&cl.genre.name,cl.subGenre&&cl.subGenre.name].filter(Boolean).join(" ");
+  state.ev.tm=evs.map(e=>{const cl=(e.classifications&&e.classifications[0])||{};const txt=[e.name,tmCn(cl.segment),tmCn(cl.genre),tmCn(cl.subGenre)].filter(Boolean).join(" ");
    let moods=[];TM_MOOD.forEach(m=>{if(m[0].test(txt))moods=moods.concat(m[1])});if(!moods.length)moods=["social"];
    const v=(e._embedded&&e._embedded.venues&&e._embedded.venues[0])||{};const pr=e.priceRanges&&e.priceRanges[0];const min=pr?pr.min:null;
    const cost=min==null?2:min<=0?0:min<25?1:min<75?2:3;const io=/festival|fair|outdoor|park|amphitheat|stadium|field/i.test(txt+" "+(v.name||""))?"out":"in";
    const img=(e.images||[]).filter(x=>x.ratio==="1_1"||x.width<=400).sort((a,b)=>a.width-b.width)[0]||(e.images||[])[0];
    const vl=v.location?{lat:+v.location.latitude,lon:+v.location.longitude}:null;
    return {cal:tmCal(e,v),name:e.name,event:true,url:e.url,time:e.dates&&e.dates.start&&(e.dates.start.localTime||"").slice(0,5),venue:v.name||"",city:v.city&&v.city.name,
-    free:!!pr&&pr.min<=0&&(!pr.max||pr.max<=0),price:pr&&!(pr.min<=0&&(!pr.max||pr.max<=0))?`${pr.currency==="USD"?"$":pr.currency+" "}${Math.round(pr.min)}${pr.max&&pr.max!==pr.min?"–"+Math.round(pr.max):""}`:"",img:img&&img.url,genre:(cl.genre&&cl.genre.name)||(cl.segment&&cl.segment.name)||"Event",
+    free:!!pr&&pr.min<=0&&(!pr.max||pr.max<=0),price:pr&&!(pr.min<=0&&(!pr.max||pr.max<=0))?`${pr.currency==="USD"?"$":pr.currency+" "}${Math.round(pr.min)}${pr.max&&pr.max!==pr.min?"–"+Math.round(pr.max):""}`:"",img:img&&img.url,genre:tmCn(cl.genre)||tmCn(cl.subGenre)||tmCn(cl.segment)||"Event",
     lat:vl&&vl.lat,lon:vl&&vl.lon,dist:vl?hav(+lat,+lon,vl.lat,vl.lon):null,meta:[e.name,"🎟",io,Array.from(new Set(moods)).slice(0,3),1,20,cost],deal:[]}})}
  catch(e){if(g===evGen){const m=e.message||"";state.ev.tmErr=/HTTP 429/.test(m)?"Ticketmaster rate limit hit (429) — try again in a minute.":mode==="proxy"?"Live events are temporarily unavailable ("+m.replace(/^[^:]*:\s*/,"")+").":/HTTP 401|HTTP 403/.test(m)?"Ticketmaster rejected the key (401). Check the Consumer Key in ⚙️ settings below.":/HTTP 429/.test(m)?"Ticketmaster rate limit hit (429) — try again in a minute.":"Ticketmaster: "+m}}}
 function evLinks(){const pp=placeParts();const d=new Date(state.date+"T12:00");const dn=d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
