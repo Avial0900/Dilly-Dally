@@ -706,6 +706,22 @@ function render(){if(!state.loc)return;const ctx=mkCtx();
  h+=out.slice(0,state.show.pl).map((x,k)=>(k===pCut?moodDiv(pCut,"Other things nearby","places",ctx):"")+card(x)).join("");$("results").innerHTML=h;moreBtn("plMore",state.show.pl,out.length,"pl");
  renderIdeas(ctx);renderEvents(ctx)}
 function nearestOf(cats){let best=null;if(!cats)return null;for(const p of state.places)if(cats.indexOf(p.c)>=0&&(!best||p.dist<best.dist))best=p;return best}
+// v1.14.15: ideas named after a specific kind of place only point at that kind of place. Before, "Planetarium show" and
+// "Science center visit" took the nearest museum of any kind (Kraków: the city walls; Melbourne: ANZ Banking Museum),
+// "Botanical garden..." took any small garden or square, and "Petting farm visit" could land on an aquarium (Sea Life Porto).
+// A place qualifies if its category is the specific one (cats) or its category is a related one (also) and its name says so (re).
+// No qualifying place nearby = no "Near ..." line (the idea still shows as an anywhere idea).
+const IDEA_ANCHOR={
+ "Planetarium show":{cats:["planetarium"],also:["museum","science","attraction"],re:/planet[aáà]r|sternwarte|observat[oó]r|obserwatorium|プラネタリウム|天文/i},
+ "Science center visit":{cats:["science","planetarium"],also:["museum","attraction"],re:/scien|ci[eê]ncia|wissenschaft|technik|techni[ck]|discovery|explorator|exploratorium|experiment|copernic|kopernik|planet[aáà]r|科学/i,not:/christian science|reading room/i},
+ "Botanical garden or conservatory visit":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|palm ?house|palmenhaus|glass ?house|hortus|植物園|植物园/i,not:/music|musik|m[uú]sica|muzyczn/i},
+ "Botanical garden stroll":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|hortus|rose garden|rosarium|roseraie|japanese garden|chinese garden|植物園|植物园|庭園/i,not:/music|musik|m[uú]sica|muzyczn/i},
+ "Petting farm visit":{cats:["farm"],also:["zoo","attraction"],re:/petting|children'?s farm|city farm|kinderbauernhof|streichelzoo|kinderboerderij|granja|fazenda|farm/i,not:/aquar|sea ?life|ocean/i},
+ "Observatory open night":{cats:["observatory"],also:["viewpoint","museum","attraction"],re:/observat[oó]r|sternwarte|obserwatorium|planet[aáà]r|天文/i}};
+function ideaNear(name,cats){const r=IDEA_ANCHOR[name];if(!r)return nearestOf(cats);let best=null;
+ for(const p of state.places){if(best&&p.dist>=best.dist)continue;const nm=p.name||"";if(r.not&&r.not.test(nm))continue;
+  if(r.cats.indexOf(p.c)>=0||r.also.indexOf(p.c)>=0&&r.re.test(nm))best=p}
+ return best}
 function rnd(seed){let x=seed*9301+49297;return function(){x=(x*9301+49297)%233280;return x/233280}}
 const IDEA_OPT={"Board game marathon":{home:1},"Themed movie night + homemade popcorn":{home:1},"Bake something new together":{home:1},"Puzzle + playlist night":{home:1},"Living-room karaoke":{home:1},
  "DIY trivia night":{home:1},"Craft night (knit, collage, candles)":{home:1},"Cook a recipe from a new country":{home:1},"Video game tournament":{home:1},"Write each other letters, swap later":{home:1},
@@ -725,7 +741,7 @@ function ideaFit(o,ctx){let m=+(ctx.date||"").slice(5,7)||(new Date().getMonth()
  if(o.home&&cls==="indoor"){r.s+=1.5;r.why.push("cozy at-home pick")}
  return r}
 function renderIdeas(ctx){const ideas=ANYWHERE.map(a=>{const o=ideaOpt(a);return {name:a[0],anywhere:true,meta:a.slice(0,7),deal:[],link:a[7],home:!!o.home,opt:o}});
- ideas.forEach(i=>{Object.assign(i,score(i,ctx));const f=ideaFit(i.opt,ctx);i.s+=f.s;i.miss+=f.miss;i.why=i.why.concat(f.why);i.near=nearestOf(i.link);if(i.near){i.s+=1.5;i.why.push("nearby: "+i.near.name)}});
+ ideas.forEach(i=>{Object.assign(i,score(i,ctx));const f=ideaFit(i.opt,ctx);i.s+=f.s;i.miss+=f.miss;i.why=i.why.concat(f.why);i.near=ideaNear(i.name,i.link);if(i.near){i.s+=1.5;i.why.push("nearby: "+i.near.name)}});
  ideas.sort((a,b)=>a.miss-b.miss||b.s-a.s);let pool=ideas.filter(i=>i.miss===0);
  // v1.14: with moods, matching ideas first, then ideas whose only miss is the mood (shown under the divider)
  if(ctx.moods.size)pool=pool.concat(ideas.filter(i=>i.moodMiss&&i.miss===1));
