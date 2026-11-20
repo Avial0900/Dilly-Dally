@@ -711,13 +711,19 @@ function nearestOf(cats){let best=null;if(!cats)return null;for(const p of state
 // "Botanical garden..." took any small garden or square, and "Petting farm visit" could land on an aquarium (Sea Life Porto).
 // A place qualifies if its category is the specific one (cats) or its category is a related one (also) and its name says so (re).
 // No qualifying place nearby = no "Near ..." line (the idea still shows as an anywhere idea).
+const BOOK_RE=/book|libr[eé]r[ií]a|livrar|librair|libreria|buchhand|b[uü]cher|boekhandel|boeken|ksi[eę]garni|kitap|書店|书店|本屋|서점|책방|문고/i;
 const IDEA_ANCHOR={
  "Planetarium show":{cats:["planetarium"],also:["museum","science","attraction"],re:/planet[aáà]r|sternwarte|observat[oó]r|obserwatorium|プラネタリウム|天文/i},
  "Science center visit":{cats:["science","planetarium"],also:["museum","attraction"],re:/scien|ci[eê]ncia|wissenschaft|technik|techni[ck]|discovery|explorator|exploratorium|experiment|copernic|kopernik|planet[aáà]r|科学/i,not:/christian science|reading room/i},
  "Botanical garden or conservatory visit":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|palm ?house|palmenhaus|glass ?house|hortus|植物園|植物园/i,not:/music|musik|m[uú]sica|muzyczn/i},
  "Botanical garden stroll":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|hortus|rose garden|rosarium|roseraie|japanese garden|chinese garden|植物園|植物园|庭園/i,not:/music|musik|m[uú]sica|muzyczn/i},
  "Petting farm visit":{cats:["farm"],also:["zoo","attraction"],re:/petting|children'?s farm|city farm|kinderbauernhof|streichelzoo|kinderboerderij|granja|fazenda|farm/i,not:/aquar|sea ?life|ocean/i},
- "Observatory open night":{cats:["observatory"],also:["viewpoint","museum","attraction"],re:/observat[oó]r|sternwarte|obserwatorium|planet[aáà]r|天文/i}};
+ "Observatory open night":{cats:["observatory"],also:["viewpoint","museum","attraction"],re:/observat[oó]r|sternwarte|obserwatorium|planet[aáà]r|天文/i},
+ // v1.14.16: bookstore ideas point at a real bookshop (or a café/market whose name says books), not the nearest Starbucks or Tim Hortons;
+ // "Board game café" points at a game shop/café, not any café. No such place nearby = anywhere idea, no wrong directions.
+ "Bookstore crawl + pick a book for each other":{cats:["bookshop"],also:["cafe","tearoom","market","attraction"],re:BOOK_RE},
+ "Cozy bookstore + café afternoon":{cats:["bookshop"],also:["cafe","tearoom"],re:BOOK_RE},
+ "Board game café":{cats:["boardgame"],also:["cafe","brewery","dessert"],re:/board ?game|game ?(caf|bar|lounge)|spiele|jeux|juegos|jogos|planszow|보드게임|ボードゲーム|桌游|桌遊/i}};
 function ideaNear(name,cats){const r=IDEA_ANCHOR[name];if(!r)return nearestOf(cats);let best=null;
  for(const p of state.places){if(best&&p.dist>=best.dist)continue;const nm=p.name||"";if(r.not&&r.not.test(nm))continue;
   if(r.cats.indexOf(p.c)>=0||r.also.indexOf(p.c)>=0&&r.re.test(nm))best=p}
