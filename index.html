@@ -712,12 +712,21 @@ function nearestOf(cats){let best=null;if(!cats)return null;for(const p of state
 // A place qualifies if its category is the specific one (cats) or its category is a related one (also) and its name says so (re).
 // No qualifying place nearby = no "Near ..." line (the idea still shows as an anywhere idea).
 const BOOK_RE=/book|libr[eé]r[ií]a|livrar|librair|libreria|buchhand|b[uü]cher|boekhandel|boeken|ksi[eę]garni|kitap|書店|书店|本屋|서점|책방|문고/i;
+const FARM_MKT=/market|markt|march[eé]|mercad|mercato|targ|rynek|bazaa?r/i;
 const IDEA_ANCHOR={
  "Planetarium show":{cats:["planetarium"],also:["museum","science","attraction"],re:/planet[aáà]r|sternwarte|observat[oó]r|obserwatorium|プラネタリウム|天文/i},
- "Science center visit":{cats:["science","planetarium"],also:["museum","attraction"],re:/scien|ci[eê]ncia|wissenschaft|technik|techni[ck]|discovery|explorator|exploratorium|experiment|copernic|kopernik|planet[aáà]r|科学/i,not:/christian science|reading room/i},
+ "Science center visit":{cats:["science","planetarium"],also:["museum","attraction"],re:/scien|ci[eê]ncia|wissenschaft|technik|techni[ck]|discovery|explorator|exploratorium|experiment|copernic|kopernik|planet[aáà]r|科学/i,not:/christian science|reading room|monument|statue|statua|pomnik|popiersie|denkmal|memorial|\bbust\b|grave|gr[oó]b|tomb|sztuki/i},
  "Botanical garden or conservatory visit":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|palm ?house|palmenhaus|glass ?house|hortus|植物園|植物园/i,not:/music|musik|m[uú]sica|muzyczn/i},
  "Botanical garden stroll":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|hortus|rose garden|rosarium|roseraie|japanese garden|chinese garden|植物園|植物园|庭園/i,not:/music|musik|m[uú]sica|muzyczn/i},
- "Petting farm visit":{cats:["farm"],also:["zoo","attraction"],re:/petting|children'?s farm|city farm|kinderbauernhof|streichelzoo|kinderboerderij|granja|fazenda|farm/i,not:/aquar|sea ?life|ocean/i},
+ // v1.14.17: "farm" places are farm shops/orchards, so a petting farm must say so in its name (farm, petting, mini zoo...), and farmers markets,
+ // farm stands/shops never count. Farm outings (pick-your-own, corn maze, hayride, cider, apple picking) skip farmers markets too.
+ // Science center skips Copernicus (and other) monuments, statues and graves, and art museums (sztuki).
+ "Petting farm visit":{cats:[],also:["farm","zoo","attraction"],re:/petting|children'?s farm|city farm|kinderbauernhof|streichelzoo|kinderboerderij|granja|fazenda|\bfarms?\b|mini ?zoo|zagroda/i,not:/aquar|sea ?life|ocean|market|markt|march[eé]|mercad|mercato|targ|rynek|bazaa?r|farm ?(stand|shop|store)|hofladen/i},
+ "Pick-your-own at a farm or orchard":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Get lost in a corn maze":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Cider mill donuts + cider":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Hayride at a farm":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Apple picking":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
  "Observatory open night":{cats:["observatory"],also:["viewpoint","museum","attraction"],re:/observat[oó]r|sternwarte|obserwatorium|planet[aáà]r|天文/i},
  // v1.14.16: bookstore ideas point at a real bookshop (or a café/market whose name says books), not the nearest Starbucks or Tim Hortons;
  // "Board game café" points at a game shop/café, not any café. No such place nearby = anywhere idea, no wrong directions.
