@@ -712,18 +712,35 @@ function nearestOf(cats){let best=null;if(!cats)return null;for(const p of state
 // A place qualifies if its category is the specific one (cats) or its category is a related one (also) and its name says so (re).
 // No qualifying place nearby = no "Near ..." line (the idea still shows as an anywhere idea).
 const BOOK_RE=/book|libr[eé]r[ií]a|livrar|librair|libreria|buchhand|b[uü]cher|boekhandel|boeken|ksi[eę]garni|kitap|書店|书店|本屋|서점|책방|문고/i;
+const FARM_MKT=/market|markt|march[eé]|mercad|mercato|targ|rynek|bazaa?r/i;
+const TEA_RE=/\btea\b|tea ?(room|house|shop|salon)|herbat|herbaciarn|salon de th[eé]|sal[oó]n de t[eé]|casa de ch[aá]|sala da t[eè]|tee(stube|haus|salon|laden)|thee(huis|salon)|[čc]ajovn|чайн|茶館|茶馆|茶室|茶屋|茶楼|茶樓|茶房|日本茶|お茶|찻집|다원/i;
+const TEA_NOT=/starbucks|tim ?hortons?|^tim'?s$|dunkin|costa coffee|^costa$|caribou|biggby|mcdonald|mcca?f[eé]|peet'?s|second cup|panera|caf[eé] nero|pret a manger|bubble|boba|milk ?tea|kung ?fu tea|gong ?cha|chatime|coco fresh|tiger sugar|sharetea|share tea|tea ninja|happy lemon|yi fang|presotea|tp tea|ding tea|machi machi|lollicup|teaspoon|bobapop|vivi /i;
+const WINE_RE=/winer|vineyard|vinyard|cider|cidre|sidra|sidrer|wine ?(bar|room|cellar|house|lounge|tasting)|weingut|weinstube|weinbar|weinhaus|vinoth[eè]|bodega|vinoteca|enoteca|wijn|winiarn|winnic|\bwino\b|\bvino\b|vinh[oa]s?\b|cave [aà] vins?|bar [aà] vins?|ワイナリー|와이너리|酒庄|酒莊/i;
 const IDEA_ANCHOR={
  "Planetarium show":{cats:["planetarium"],also:["museum","science","attraction"],re:/planet[aáà]r|sternwarte|observat[oó]r|obserwatorium|プラネタリウム|天文/i},
- "Science center visit":{cats:["science","planetarium"],also:["museum","attraction"],re:/scien|ci[eê]ncia|wissenschaft|technik|techni[ck]|discovery|explorator|exploratorium|experiment|copernic|kopernik|planet[aáà]r|科学/i,not:/christian science|reading room/i},
+ "Science center visit":{cats:["science","planetarium"],also:["museum","attraction"],re:/scien|ci[eê]ncia|wissenschaft|technik|techni[ck]|discovery|explorator|exploratorium|experiment|copernic|kopernik|planet[aáà]r|科学/i,not:/christian science|reading room|monument|statue|statua|pomnik|popiersie|denkmal|memorial|\bbust\b|grave|gr[oó]b|tomb|sztuki/i},
  "Botanical garden or conservatory visit":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|palm ?house|palmenhaus|glass ?house|hortus|植物園|植物园/i,not:/music|musik|m[uú]sica|muzyczn/i},
  "Botanical garden stroll":{cats:[],also:["garden","park","attraction","nature"],re:/botan|conservator|arboret|hortus|rose garden|rosarium|roseraie|japanese garden|chinese garden|植物園|植物园|庭園/i,not:/music|musik|m[uú]sica|muzyczn/i},
- "Petting farm visit":{cats:["farm"],also:["zoo","attraction"],re:/petting|children'?s farm|city farm|kinderbauernhof|streichelzoo|kinderboerderij|granja|fazenda|farm/i,not:/aquar|sea ?life|ocean/i},
+ // v1.14.17: "farm" places are farm shops/orchards, so a petting farm must say so in its name (farm, petting, mini zoo...), and farmers markets,
+ // farm stands/shops never count. Farm outings (pick-your-own, corn maze, hayride, cider, apple picking) skip farmers markets too.
+ // Science center skips Copernicus (and other) monuments, statues and graves, and art museums (sztuki).
+ "Petting farm visit":{cats:[],also:["farm","zoo","attraction"],re:/petting|children'?s farm|city farm|kinderbauernhof|streichelzoo|kinderboerderij|granja|fazenda|\bfarms?\b|mini ?zoo|zagroda/i,not:/aquar|sea ?life|ocean|market|markt|march[eé]|mercad|mercato|targ|rynek|bazaa?r|farm ?(stand|shop|store)|hofladen/i},
+ "Pick-your-own at a farm or orchard":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Get lost in a corn maze":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Cider mill donuts + cider":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Hayride at a farm":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
+ "Apple picking":{cats:["farm"],also:[],re:/$^/,not:FARM_MKT},
  "Observatory open night":{cats:["observatory"],also:["viewpoint","museum","attraction"],re:/observat[oó]r|sternwarte|obserwatorium|planet[aáà]r|天文/i},
  // v1.14.16: bookstore ideas point at a real bookshop (or a café/market whose name says books), not the nearest Starbucks or Tim Hortons;
  // "Board game café" points at a game shop/café, not any café. No such place nearby = anywhere idea, no wrong directions.
  "Bookstore crawl + pick a book for each other":{cats:["bookshop"],also:["cafe","tearoom","market","attraction"],re:BOOK_RE},
  "Cozy bookstore + café afternoon":{cats:["bookshop"],also:["cafe","tearoom"],re:BOOK_RE},
- "Board game café":{cats:["boardgame"],also:["cafe","brewery","dessert"],re:/board ?game|game ?(caf|bar|lounge)|spiele|jeux|juegos|jogos|planszow|보드게임|ボードゲーム|桌游|桌遊/i}};
+ "Board game café":{cats:["boardgame"],also:["cafe","brewery","dessert"],re:/board ?game|game ?(caf|bar|lounge)|spiele|jeux|juegos|jogos|planszow|보드게임|ボードゲーム|桌游|桌遊/i},
+ // v1.14.18: "Afternoon tea at a tea room" points at a real tea room (shop=tea, a tea café, or a café whose name says tea room/house,
+ // herbaciarnia, salon de thé, 茶館...), never the nearest Starbucks or Tim Hortons. "Cidery or winery visit" points at a winery/cidery
+ // (craft=winery/cider) or a bar/restaurant/farm whose name says winery, vineyard, cider, wine bar, Weingut, bodega, enoteca...; not any pub.
+ "Afternoon tea at a tea room":{cats:["tearoom"],also:["cafe","dessert","bakery"],re:TEA_RE,not:TEA_NOT},
+ "Cidery or winery visit":{cats:["winery"],also:["brewery","restaurant","cafe","farm","attraction"],re:WINE_RE,not:FARM_MKT}};
 function ideaNear(name,cats){const r=IDEA_ANCHOR[name];if(!r)return nearestOf(cats);let best=null;
  for(const p of state.places){if(best&&p.dist>=best.dist)continue;const nm=p.name||"";if(r.not&&r.not.test(nm))continue;
   if(r.cats.indexOf(p.c)>=0||r.also.indexOf(p.c)>=0&&r.re.test(nm))best=p}
